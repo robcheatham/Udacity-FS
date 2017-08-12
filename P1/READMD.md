@@ -8,7 +8,7 @@ In order to run this code you need to have Python 2.7 installed on your machine.
 
 ## How to run the Program
 
-To run this project you can clone the repository. Open up the file '''movie_creator.py''' in IDLE and select from the 'Run' menu, the Run Module option. The program should create an output file named '''quentin_movies.html''' which you can open in your favourite browser.
+To run this project you can clone the repository. Open up the file ```movie_creator.py``` in IDLE and select from the 'Run' menu, the Run Module option. The program should create an output file named ```quentin_movies.html``` which you can open in your favourite browser.
 
 ## License
 

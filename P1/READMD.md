@@ -5,3 +5,7 @@ Server side code that stores a list of your favourite movies, including images a
 ## Prerequisites
 
 In order to run this code you need to have Python 2.7 installed on your machine.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details

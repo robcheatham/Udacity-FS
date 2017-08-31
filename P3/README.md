@@ -3,6 +3,7 @@
 Reporting tool that prints out plain text reports based on data from a PostgreSQL database written in Python that utilising the psycopg2 module to connect to the database.
 
 
+
 ## Prerequisites
 
 This program was created on a Linux VM and to run it successfully you will require the following - 
@@ -12,7 +13,9 @@ This program was created on a Linux VM and to run it successfully you will requi
   - Vagrant
 
 
+
 ## Setting up the Project
+
 
 1 - Download and install the correct platform package for your OS of VirtualBox from here - [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
 
@@ -25,27 +28,32 @@ This program was created on a Linux VM and to run it successfully you will requi
 5 - Unzip the Data into your repository
 
 
+
 ## Launching the VM
 
+
 From within the Vagrant sub-directory of your repository using the Terminal launch the VM using the command:
-``
-`vagrant up
+```
+vagrant up
 ```
 
 Log in to Vagrant using the command:
-```vagrant ssh
+```
+vagrant ssh
 ```
 
 Move yourself into the \vagrant directory and view the files using the command:
 ```
 cd \vagrant
-````
+```
 ```
 ls
 ```
 
 
+
 ## Setting up the Database
+
 
 Load the data into the database by using the command:
 ```
@@ -71,7 +79,9 @@ psql -d news
 ```
 
 
+
 ### Creating the necessary views within the database for running the Program
+
 
 In order to run the program it is necessary to create a couple of views in the database. The first view is used to view data related to articles it's authors and counts the views of each article. The second view combines data to calculate the error percentage of article requests.
 
@@ -89,6 +99,7 @@ This will create the following views to query against in the table -
 
 
 **article_views**
+
 Column | Data Type
 --- | ---
 title | text
@@ -96,17 +107,22 @@ author | text
 views | integer 
 
 **error_log**
-Markdown | Less 
---- | --- 
-*Still* | `renders` 
-1 | 2 
+
+Column | Data Type
+--- | ---
+date | date
+error_rate | float
+
 
 
 ## Running the program and generating the Logs
 
+
 Exit out of the database by using the command: ```\q```
 
 Then run the program using the command: ```python logs.py```
+
+
 
 ## License
 This project is licensed under the MIT License

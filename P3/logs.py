@@ -1,3 +1,4 @@
+# !/usr/bin/env python
 # Import Postgre dbapi
 import psycopg2
 

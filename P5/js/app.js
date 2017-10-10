@@ -46,7 +46,7 @@ var locationList = [{
         lat: 51.525673,
         lng: -0.087435
     }
-]
+];
 
 // Map styling via Snazzy Maps 
 var styles = [{
@@ -163,7 +163,7 @@ var styles = [{
             "color": "#021019"
         }]
     }
-]
+];
 
 var ViewModel = function() {
 
@@ -279,16 +279,17 @@ var ViewModel = function() {
             this.marker.addListener('click', self.clickEvent);
         }
 
-        for (var i = 0; i < this.markers.length; i++) {
-            this.markers[i].setMap(map);
-            self.bounds.extend(this.markers[i].position);
+        for (var j = 0; j < this.markers.length; j++) {
+            this.markers[j].setMap(map);
+            self.bounds.extend(this.markers[j].position);
         }
 
         // Ensures map view stays within the bounds of every Marker
         window.onresize = function() {
             map.fitBounds(self.bounds);
         };
-    }
+    };
+  
     // Call to initialize the Map
     this.initMap();
 
@@ -309,13 +310,13 @@ var ViewModel = function() {
         }
         return filteredArray;
     }, this);
-}
+};
 
 // Error function in case Map does not Load
 mapLoadError = function() {
     var mapError = "<span class='map-load-error'>Failed to Load Map. Please try again!</span>";
     document.getElementById('side-nav').innerHTML = mapError;
-}
+};
 
 function appLoad() {
     ko.applyBindings(new ViewModel());

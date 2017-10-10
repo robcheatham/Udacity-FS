@@ -11,6 +11,11 @@ Single page application that features a map of Shoreditch, London where you can 
  - Asynchronous API calls
  - Error handling in case of errors when calling API's
 
+## How to open the App
+
+To use this application please download all the files and and open the index.html file.
+Alternatively you can clone the repository - [LDN-Map](https://github.com/robcheatham/Udacity-FS/tree/master/P5)
+
 ## Libraries, Frameworks & API's Used
 
  1. knockout.js

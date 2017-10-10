@@ -1,170 +1,5 @@
 var map;
 
-// Array of Location Objects for the Map
-var locationList = [{
-        name: 'Boxpark Shoreditch',
-        lat: 51.523704,
-        lng: -0.076474
-    },
-    {
-        name: 'Queen of Hoxton',
-        lat: 51.523704,
-        lng: -0.081235
-    },
-    {
-        name: 'Junkyard Golf Club',
-        lat: 51.521133,
-        lng: -0.072511
-    },
-    {
-        name: 'Bounce, Old Street',
-        lat: 51.526797,
-        lng: -0.084208
-    },
-    {
-        name: 'Flight Club Shoreditch',
-        lat: 51.522172,
-        lng: -0.086588
-    },
-    {
-        name: 'Old Truman Brewery',
-        lat: 51.521887,
-        lng: -0.072257
-    },
-    {
-        name: 'The Breakfast Club',
-        lat: 51.527037,
-        lng: -0.081236
-    },
-    {
-        name: 'Hoxton Grill',
-        lat: 51.525594,
-        lng: -0.082995
-    },
-    {
-        name: 'The Magic Roundabout',
-        lat: 51.525673,
-        lng: -0.087435
-    }
-];
-
-// Map styling via Snazzy Maps 
-var styles = [{
-        "featureType": "all",
-        "elementType": "labels.text.fill",
-        "stylers": [{
-            "color": "#ffffff"
-        }]
-    },
-    {
-        "featureType": "all",
-        "elementType": "labels.text.stroke",
-        "stylers": [{
-                "color": "#000000"
-            },
-            {
-                "lightness": 13
-            }
-        ]
-    },
-    {
-        "featureType": "administrative",
-        "elementType": "geometry.fill",
-        "stylers": [{
-            "color": "#000000"
-        }]
-    },
-    {
-        "featureType": "administrative",
-        "elementType": "geometry.stroke",
-        "stylers": [{
-                "color": "#144b53"
-            },
-            {
-                "lightness": 14
-            },
-            {
-                "weight": 1.4
-            }
-        ]
-    },
-    {
-        "featureType": "landscape",
-        "elementType": "all",
-        "stylers": [{
-            "color": "#08304b"
-        }]
-    },
-    {
-        "featureType": "poi",
-        "elementType": "geometry",
-        "stylers": [{
-                "color": "#0c4152"
-            },
-            {
-                "lightness": 5
-            }
-        ]
-    },
-    {
-        "featureType": "road.highway",
-        "elementType": "geometry.fill",
-        "stylers": [{
-            "color": "#000000"
-        }]
-    },
-    {
-        "featureType": "road.highway",
-        "elementType": "geometry.stroke",
-        "stylers": [{
-                "color": "#0b434f"
-            },
-            {
-                "lightness": 25
-            }
-        ]
-    },
-    {
-        "featureType": "road.arterial",
-        "elementType": "geometry.fill",
-        "stylers": [{
-            "color": "#000000"
-        }]
-    },
-    {
-        "featureType": "road.arterial",
-        "elementType": "geometry.stroke",
-        "stylers": [{
-                "color": "#0b3d51"
-            },
-            {
-                "lightness": 16
-            }
-        ]
-    },
-    {
-        "featureType": "road.local",
-        "elementType": "geometry",
-        "stylers": [{
-            "color": "#000000"
-        }]
-    },
-    {
-        "featureType": "transit",
-        "elementType": "all",
-        "stylers": [{
-            "color": "#146474"
-        }]
-    },
-    {
-        "featureType": "water",
-        "elementType": "all",
-        "stylers": [{
-            "color": "#021019"
-        }]
-    }
-];
-
 var ViewModel = function() {
 
     var self = this;
@@ -205,9 +40,12 @@ var ViewModel = function() {
             });
             // Open the InfoWindow
             infowindow.open(map, marker);
+            map.panTo(marker.getPosition());
             // On click close the InfoWindow
             infowindow.addListener('closeclick', function() {
                 infowindow.marker = null;
+                var latlng = { lat: 51.525378, lng: -0.081725 };
+                map.panTo(latlng);
             });
         }
     };

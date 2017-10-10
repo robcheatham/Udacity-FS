@@ -1,0 +1,156 @@
+html, body {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	background-color: #eee;
+}
+
+body, input {
+	font-family: 'Lato', sans-serif;
+	font-weight: 300;
+}
+
+input:focus, input:active {
+	outline-color: #ffe600;
+}
+
+.main-wrapper {
+	max-width: 100%;
+	height: 100%;
+	position: relative;
+	overflow:hidden;
+}
+
+.map-wrapper {
+	height: 100%;
+	width: 100%;
+	position: relative;
+	left: 0;
+	margin: 0;
+}
+
+.side-nav-wrapper {
+	display: none;
+}
+
+.toggle-nav, .close-nav {
+	z-index: 1000;
+	position: absolute;
+	left: 15px;
+	top: 15px;
+	color: #fff;
+}
+
+.close-nav {
+	display: none;
+}
+
+.toggle-nav.active {
+	display: none;
+}
+
+.close-nav.active {
+	display: inline-block;
+}
+
+@media screen and (min-width: 768px) {
+	.side-nav-wrapper {
+		border: 1px solid rgba(0,0,0,.14);
+		bottom: 0;
+		background: #fff;
+		color: #232323;
+		display: block;
+		left: 0;
+		position: fixed;
+		width: 256px;
+		z-index: 4;
+		top: 0;
+	}
+	.map-wrapper {
+		width: calc(100% - 256px);
+		left: 256px;
+	}
+	.toggle-nav {
+		display: none;
+	}
+}
+
+nav.active {
+	border: 1px solid rgba(0,0,0,.14);
+		bottom: 0;
+		background: #fff;
+		color: #232323;
+		display: block;
+		left: 0;
+		position: fixed;
+		width: 256px;
+		z-index: 4;
+		top: 0;
+}
+
+.map-wrapper.open-menu {
+	width: calc(100% - 256px);
+	left: 256px;
+}
+
+.side-nav-header {
+	border-bottom: 1px solid rgba(0,0,0,.14);
+	box-sizing: border-box;
+	display: block;
+	height: 64px;
+	padding: 22px 0 23px 16px;
+	background-color: #021019;
+	position: relative;
+}
+
+.nav-brand {
+	font-size: 18px;
+	color: #fff;
+	text-decoration: none;
+	text-transform: uppercase;
+	font-family: 'Arvo', serif;
+}
+
+.location-filter {
+	border: 0;
+	border-bottom: 1px solid rgba(0,0,0,.14);
+	box-sizing: border-box;
+	background-color: #eee;
+	display: block;
+	height: 64px;
+	width: 100%;
+	padding: 22px 16px 23px;
+	position: relative;
+}
+
+.side-nav-items ul {
+	padding-left: 16px;
+}
+
+.side-nav-items li {
+	list-style-type: none;
+	padding: 8px 0;
+	cursor: pointer;
+}
+
+.side-nav-items li:hover, .side-nav-items li:focus {
+	color: #000;
+	font-weight: 400;
+}
+
+#map {
+	bottom:0;
+	height: 100%;
+	width: 100%;
+	left: 0;
+	position: absolute;
+	right: 0;
+}
+
+.marker-content {
+	width: 300px;
+}
+
+.error {
+	color: red;
+}

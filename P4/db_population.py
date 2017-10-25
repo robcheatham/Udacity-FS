@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
-from sqlalchemy import sessionmaker
+from sqlalchemy.orm import sessionmaker
 
 # Import the necessary db Classes
 from db_setup import Base, User, Category, Product
@@ -7,7 +7,7 @@ from db_setup import Base, User, Category, Product
 # Create the engine and bind it to the Base class metadata
 # so that declaratives can be accessed through the session instance
 engine = create_engine('sqlite:///productcatalogue.db')
-Base.metadata.bind(engine)
+Base.metadata.bind = engine
 
 # Create a session as a STG area for db objects
 DBSession = sessionmaker(bind=engine)
@@ -311,4 +311,4 @@ session.commit()
 
 print("Running Category & Products added succesfully to the database!")
 
-print("Database populated Successfully!")
+print("\n" + "Database populated Successfully!" + "\n")

@@ -38,7 +38,7 @@ print("Users added successfully to the database!")
 
 # Create Outerwear Category with Products
 # Outerwear Category Creation
-category1 = Category(user_id=1, name="Outerwear")
+category1 = Category(user_id=1, name="Outerwear", url_name="outerwear")
 
 session.add(category1)
 session.commit()
@@ -84,7 +84,7 @@ print("Outerwear Category & Products added succesfully to the database!")
 
 # Create T-Shirts Category with Products
 # T-Shirts Category Creation
-category2 = Category(user_id=2, name="T-Shirts")
+category2 = Category(user_id=2, name="T-Shirts", url_name="tshirts")
 
 session.add(category2)
 session.commit()
@@ -130,7 +130,7 @@ print("T-Shirt Category & Products added succesfully to the database!")
 
 # Create Active Wear Category with Products
 # Active Wear Category Creation
-category3 = Category(user_id=3, name="Active Wear")
+category3 = Category(user_id=3, name="Active Wear", url_name="activewear")
 
 session.add(category3)
 session.commit()
@@ -176,7 +176,7 @@ print("Active Wear Category & Products added succesfully to the database!")
 
 # Create Hiking Gear Category with Products
 # Hiking Gear Category Creation
-category4 = Category(user_id=1, name="Hiking Gear")
+category4 = Category(user_id=1, name="Hiking Gear", url_name="hikinggear")
 
 session.add(category4)
 session.commit()
@@ -222,7 +222,7 @@ print("Hiking Gear Category & Products added succesfully to the database!")
 
 # Create Snow Range Category with Products
 # Snow Range Category Creation
-category5 = Category(user_id=2, name="Snow Range")
+category5 = Category(user_id=2, name="Snow Range", url_name="snowrange")
 
 session.add(category5)
 session.commit()
@@ -268,7 +268,7 @@ print("Snow Range Category & Products added succesfully to the database!")
 
 # Create Running Category with Products
 # Running Category Creation
-category6 = Category(user_id=3, name="Running")
+category6 = Category(user_id=3, name="Running", url_name="running")
 
 session.add(category6)
 session.commit()

@@ -22,6 +22,7 @@ class Category(Base):
 
     id = Column(Integer, primary_key = True)
     name = Column(String(80), nullable = False)
+    url_name = Column(String(80))
     # Establish relationship to User
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
@@ -39,7 +40,7 @@ class Product(Base):
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
     # Establish relationship to Category
-    category_id = Column(Integer, ForeignKey('category.id'))
+    category_url = Column(String(80), ForeignKey('category.url_name'))
     category = relationship(Category)
 
 

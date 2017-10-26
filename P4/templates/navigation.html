@@ -1,0 +1,12 @@
+<nav class="menu side-nav-wrapper">
+    <div class="side-nav-header">
+        <span class="nav-brand">Category Menu</span>
+    </div>
+    <div class="side-nav-items" id="side-nav">
+        <ul>
+        	{% for n in navitems %}
+            <li><a href="{{ url_for('showCategoryProducts', url_name=n.url_name) }}">{{ n.name }}</a></li>
+    		{% endfor %}
+        </ul>
+    </div>
+</nav>

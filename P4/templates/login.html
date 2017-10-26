@@ -1,0 +1,50 @@
+{% extends "main.html" %}
+{% block content %}
+	{% include "header.html" %}
+	{% include "navigation.html" %}
+    <script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
+	<main class="main-content">
+        <div class="login-wrapper">
+            <h2 class="login-title">Sign in with your preferred option below</h2>
+            <!-- Google Sign In -->
+            <div id="signInButton">
+                <span class="g-signin" data-scope="openid email" data-clientid="1046570830006-l58a7jetap6j9langdo7vj09u0avrnqo.apps.googleusercontent.com" data-redirecturi="postmessage" data-accesstype="offline" data-cookiepolicy="single_host_origin" data-callback="signInCallback" data-approvalprompt="force"></span>
+            </div>
+            <div id="result"></div>
+
+            <!-- Sign In Callback Function -->
+            <script>
+                function signInCallback(authResult) {
+                    if(authResult['code']) {
+                        // Hide the Sign In Button as User is authorised
+                        $('#signInButton').attr('style', 'display: none');
+                        // Send the one-time-use code to the Server, if 200 Login Success message and redirect
+                        $.ajax({
+                            type: 'POST',
+                            url: '/gconnect?state={{STATE}}',
+                            processData: false,
+                            data: authResult['code'],
+                            contentType: 'application/octet-stream; charset=utf-8',
+                            success: function(result) {
+                                if(result) {
+                                    $('#result').html('Login Successful!' + result + 'Redirecting...');
+                                    setTimeout(function() {
+                                        window.location.href = "/category";
+                                    }, 4000);
+                                } else if(authResult['error']) {
+                                    console.log('There was an error: ' + authResult['error']);
+                                } else {
+                                    $('#result').html('Failed to make a call to the Server. Check your configiration');
+                                }
+                            },
+                            error: function(result) {
+                                console.log('There was an error: ' + result);
+                            }
+                        });
+                    }
+                }
+            </script>
+            <!-- End of Google Sign In -->
+        </div>
+	</main>
+{% endblock %}

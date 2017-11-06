@@ -38,10 +38,9 @@ a {
 	margin-left: auto;
 }
 
-.btn-login {
-	border: 3px solid #fff;
-	color: #fff;
+.btn {
 	background: none;
+	border: 3px solid #fff;
 	margin-right: 1rem;
 	cursor: pointer;
 	padding: 16px 64px;
@@ -54,7 +53,16 @@ a {
 	-moz-transition: all 0.3s;
 }
 
+.btn-login {
+	color: #fff;
+}
+
 .btn-login:hover {
+	background: #fff;
+	color: #0275d8;
+}
+
+.btn-logout {
 	background: #fff;
 	color: #0275d8;
 }

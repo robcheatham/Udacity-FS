@@ -272,14 +272,20 @@ def newCategory():
 
 
 @app.route('/category/<string:url_name>/delete/', methods=['GET', 'POST'])
-def delCategory():
+def delCategory(url_name):
     if 'username' not in login_session:
         return redirect('/login')
     categoryToDelete = session.query(Category).filter_by(url_name=url_name).one()
-    print categoryToDelete
     if categoryToDelete.user_id != login_session['user_id']:
-        return "<script>function noAuthorisation() {alert('You do not have access to delete this Category!');}</script><body onload='noAuthorisation()'>"
-    
+        flash('You do not have access to delete %s' % categoryToDelete.name)
+        return redirect(url_for('showCategoryProducts', url_name=categoryToDelete.url_name))
+    if request.method == 'POST':
+        session.delete(categoryToDelete)
+        flash('You have successfully deleted %s' % categoryToDelete.name)
+        session.commit()
+        return redirect(url_for('showCategories'))
+    else: 
+        return render_template('deleteCategory.html', navitems=navitems, category=categoryToDelete)
 
 
 @app.route('/category/<string:url_name>/')

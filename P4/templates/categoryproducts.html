@@ -4,19 +4,25 @@
 	{% include "navigation.html" %}
 	<main class="main-content">
 		<div class="category-page-header">
-			<h2 class="category-page-title">All Products</h2>
+			<h2 class="category-page-title">{{ category.name }}</h2>
 			<div class="category-page-header-buttons">
-				<a href="{{ url_for('newCategory')}}">
-					<button class="btn btn-add-product">Add a Category</button>
+				<a href="#">
+					<button class="btn btn-edit-cat">Edit Category</button>
+				</a>
+				<a href="#">
+					<button class="btn btn-delete-cat">Delete Category</button>
+				</a>
+				<a href="#">
+					<button class="btn btn-add-product">Add a Product</button>
 				</a>
 			</div>
 		</div>
 		<div class="product-data">
 		{% if products != [] %}
-		{% for p in products %}
+			{% for p in products %}
 			<div class="product-item">
 				<div class="product-item-header">
-					<h3>{{ p.name }}</h3><span><a href="{{ url_for('showCategoryProducts', url_name=p.category_url) }}">{{ p.category.name }}</a></span>
+					<h3>{{ p.name }}</h3><span>{{ p.category.name }}</span>
 				</div>
 				<div class="product-item-content">
 					<div class="product-item-left">
@@ -36,7 +42,11 @@
 					</div>
 				</div>
 			</div>
-		{% endfor %}
+			{% endfor %}
+		{% else %}
+			<div class="no-products">
+				<p>No Products in this Category</p>
+			</div>
 		{% endif %}
 		</div>
 	</main>

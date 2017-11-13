@@ -89,11 +89,17 @@ def gconnect():
     login_session['picture'] = data["picture"]
     login_session['email'] = data["email"]
 
+    user_id = getUserID(data["email"])
+    if not user_id:
+        user_id = createUser(login_session)
+    login_session['user_id'] = user_id
+    print login_session['user_id']
+
     output = ''
     output += '<h1>Welcome, '
     output += login_session['username']
     output += '</h1>'
-    flash("you are now logged in as %s" %login_session['username'])
+    flash("You are now Logged In as %s" %login_session['username'])
     return output
 
 
@@ -214,10 +220,17 @@ def logout():
         del login_session['username']
         del login_session['email']
         del login_session['picture']
+        del login_session['user_id']
         response = make_response(json.dumps('Successfully disconnected.'), 200)
         response.headers['Content-Type'] = 'application/json'
+<<<<<<< HEAD
         return response
 
+=======
+        print response
+        flash('You have been successfully Logged Out')
+        return showLogin()
+>>>>>>> a9c5ff278b4ad81b84832d04413eee08cf5f9127
     elif login_session.get('provider') == 'facebook':
         facebook_id = login_session.get('facebook_id')
         url = 'https://graph.facebook.com/%s/permissions?access_token=%s' % (facebook_id, access_token)
@@ -230,8 +243,13 @@ def logout():
         del login_session['picture']
         del login_session['user_id']
         del login_session['facebook_id']
+<<<<<<< HEAD
         return "You have been logged out of the Application"
 
+=======
+        flash('You have been successfully Logged Out')
+        return showLogin()       
+>>>>>>> a9c5ff278b4ad81b84832d04413eee08cf5f9127
     else:
         response = make_response(json.dumps('Failed to revoke the token for User'), 400)
         response.headers['Content-Type'] = 'application/json'
@@ -245,7 +263,42 @@ navitems = session.query(Category).order_by(asc(Category.name))
 @app.route('/category/')
 def showCategories():
     products = session.query(Product).all()
-    return render_template('categories.html', navitems=navitems, products=products)
+    if 'username' not in login_session:
+        return render_template('public-categories.html', navitems=navitems, products=products)
+    else:
+        return render_template('categories.html', navitems=navitems, products=products)
+
+
+@app.route('/category/new/', methods=['GET', 'POST'])
+def newCategory():
+    if 'username' not in login_session:
+        return redirect('/login')
+    if request.method == 'POST':
+        newCategory = Category(
+            name=request.form['name'], url_name=request.form['urlname'], user_id=login_session['user_id'])
+        session.add(newCategory)
+        flash('New Category %s was created Successfully' % newCategory.name)
+        session.commit()
+        return redirect(url_for('showCategories'))
+    else:
+        return render_template('newCategory.html', navitems=navitems)
+
+
+@app.route('/category/<string:url_name>/delete/', methods=['GET', 'POST'])
+def delCategory(url_name):
+    if 'username' not in login_session:
+        return redirect('/login')
+    categoryToDelete = session.query(Category).filter_by(url_name=url_name).one()
+    if categoryToDelete.user_id != login_session['user_id']:
+        flash('You do not have access to delete %s' % categoryToDelete.name)
+        return redirect(url_for('showCategoryProducts', url_name=categoryToDelete.url_name))
+    if request.method == 'POST':
+        session.delete(categoryToDelete)
+        flash('You have successfully deleted %s' % categoryToDelete.name)
+        session.commit()
+        return redirect(url_for('showCategories'))
+    else: 
+        return render_template('deleteCategory.html', navitems=navitems, category=categoryToDelete)
 
 
 @app.route('/category/<string:url_name>/')
@@ -253,7 +306,11 @@ def showCategories():
 def showCategoryProducts(url_name):
     category = session.query(Category).filter_by(url_name=url_name).one()
     products = session.query(Product).filter_by(category_url=url_name).all()
-    return render_template('public-categoryproducts.html', navitems=navitems, category=category, products=products)
+    if 'username' not in login_session:
+        return render_template('public-categoryproducts.html', navitems=navitems, category=category, products=products)
+    else:
+        return render_template('categoryproducts.html', navitems=navitems, category=category, products=products)
+
 
 
 if __name__ == '__main__':

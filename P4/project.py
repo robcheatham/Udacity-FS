@@ -205,10 +205,10 @@ def logout():
     # Only disconnect a connected user.
     access_token = login_session.get('access_token')
     if access_token is None:
-        response = make_response(json.dumps('Current user not connected.'), 401)
+        response = make_response(
+            json.dumps('Current user not connected.'), 401)
         response.headers['Content-Type'] = 'application/json'
         return response
-
     url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % access_token
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
@@ -216,45 +216,32 @@ def logout():
         del login_session['access_token']
         del login_session['provider']
         del login_session['gplus_id']
-        del login_session['user_id']
         del login_session['username']
         del login_session['email']
         del login_session['picture']
         del login_session['user_id']
         response = make_response(json.dumps('Successfully disconnected.'), 200)
         response.headers['Content-Type'] = 'application/json'
-<<<<<<< HEAD
-        return response
-
-=======
         print response
         flash('You have been successfully Logged Out')
         return showLogin()
->>>>>>> a9c5ff278b4ad81b84832d04413eee08cf5f9127
     elif login_session.get('provider') == 'facebook':
         facebook_id = login_session.get('facebook_id')
         url = 'https://graph.facebook.com/%s/permissions?access_token=%s' % (facebook_id, access_token)
         h = httplib2.Http()
         result = h.request(url, 'DELETE')[1]
-        del login_session['access_token']
         del login_session['username']
         del login_session['provider']
         del login_session['email']
         del login_session['picture']
         del login_session['user_id']
         del login_session['facebook_id']
-<<<<<<< HEAD
-        return "You have been logged out of the Application"
-
-=======
         flash('You have been successfully Logged Out')
         return showLogin()       
->>>>>>> a9c5ff278b4ad81b84832d04413eee08cf5f9127
     else:
         response = make_response(json.dumps('Failed to revoke the token for User'), 400)
         response.headers['Content-Type'] = 'application/json'
-        return response
-
+        return response    
 
 navitems = session.query(Category).order_by(asc(Category.name))
 

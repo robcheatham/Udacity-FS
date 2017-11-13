@@ -9,7 +9,7 @@
 				<a href="#">
 					<button class="btn btn-edit-cat">Edit Category</button>
 				</a>
-				<a href="#">
+				<a href="{{ url_for('delCategory', url_name=category.url_name) }}">
 					<button class="btn btn-delete-cat">Delete Category</button>
 				</a>
 				<a href="#">

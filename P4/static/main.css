@@ -131,6 +131,10 @@ a {
 	font-weight: 500;
 }
 
+.side-nav-items li a {
+	text-transform: capitalize;
+}
+
 .main-content {
 	width: calc(100% - 256px);
 	left: 256px;

@@ -1,4 +1,13 @@
 <header class="site-header">
+	{% with messages = get_flashed_messages() %}
+	<div class="flash">
+		{% if messages %}
+			{% for message in messages %}
+			<div class="flash-msg">{{ message }}<i class="fa fa-times-circle" aria-hidden="true" style="margin-left: 8px; cursor: pointer;"></i></div>
+			{% endfor %}
+		{% endif %}
+	</div>
+	{% endwith %}
 	<div class="header-wrapper">
 		<a class="header-title" href="{{ url_for('showCategories') }}">Product Catalogue</a>
 		<div class="header-login">

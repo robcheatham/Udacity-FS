@@ -3,16 +3,30 @@
 	{% include "header.html" %}
 	{% include "navigation.html" %}
 	<main class="main-content">
+		<div class="category-page-header">
+			<h2 class="category-page-title">{{ category.name }}</h2>
+		</div>
 		<div class="product-data">
 		{% if products != [] %}
-		{% for p in products %}
+			{% for p in products %}
 			<div class="product-item">
-				<h3>{{ p.name }}</h3>
-				<p>{{ p.short_desc }}</p>
-				<span>{{ p.price }}</span>
-				<span>{{ p.category.name }}</span>
+				<div class="product-item-header">
+					<h3>{{ p.name }}</h3><span>{{ p.category.name }}</span>
+				</div>
+				<div class="product-item-content">
+					<div class="product-item-left">
+						<p class="product-description">{{ p.short_desc }}</p>
+					</div>
+					<div class="product-item-right">
+						<span>{{ p.price }}</span>
+					</div>
+				</div>
 			</div>
-		{% endfor %}
+			{% endfor %}
+		{% else %}
+			<div class="no-products">
+				<p>No Products in this Category</p>
+			</div>
 		{% endif %}
 		</div>
 	</main>

@@ -5,18 +5,13 @@
 	<main class="main-content">
 		<div class="category-page-header">
 			<h2 class="category-page-title">All Products</h2>
-			<div class="category-page-header-buttons">
-				<a href="{{ url_for('newCategory')}}">
-					<button class="btn btn-add-product">Add a Category</button>
-				</a>
-			</div>
 		</div>
 		<div class="product-data">
 		{% if products != [] %}
 		{% for p in products %}
 			<div class="product-item">
 				<div class="product-item-header">
-					<h3>{{ p.name }}</h3><span><a href="{{ url_for('showCategoryProducts', url_name=p.category_url) }}">{{ p.category.name }}</a></span>
+					<h3>{{ p.name }}</h3><span>{{ p.category.name }}</span>
 				</div>
 				<div class="product-item-content">
 					<div class="product-item-left">
@@ -24,15 +19,6 @@
 					</div>
 					<div class="product-item-right">
 						<span>{{ p.price }}</span>
-					</div>
-				</div>
-				<div class="product-item-footer">
-					<img class="user-avatar" src="{{ p.user.avatar }}">
-					<span class="user-name">{{ p.user.name }}</span>
-					<div class="product-item-footer-buttons">
-						<a class="edit-product-link" href="#">Edit</a>
-						<span class="spacer">/</span>
-						<a class="delete-product-link" href="#">Delete</a>
 					</div>
 				</div>
 			</div>

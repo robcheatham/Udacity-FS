@@ -6,7 +6,8 @@ from sqlalchemy.orm import sessionmaker
 from db_setup import Base, User, Category, Product
 
 from flask import session as login_session
-import random, string
+import random
+import string
 
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
@@ -33,7 +34,8 @@ session = DBSession()
 # Login Page & Create anti-forgery state token
 @app.route('/login/')
 def showLogin():
-    state = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in xrange(32))
+    state = ''.join(random.choice(
+        string.ascii_uppercase + string.digits) for x in xrange(32))
     login_session['state'] = state
     return render_template('login.html', STATE=state, navitems=navitems)
 
@@ -50,11 +52,13 @@ def gconnect():
         oauth_flow.redirect_uri = 'postmessage'
         credentials = oauth_flow.step2_exchange(code)
     except FlowExchangeError:
-        response = make_response(json.dumps('Failed to upgrade the authorization code'), 401)
+        response = make_response(
+            json.dumps('Failed to upgrade the authorization code'), 401)
         response.header['Content-Type'] = 'application/json'
         return response
     access_token = credentials.access_token
-    url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s' %access_token)
+    url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s'
+           % access_token)
     h = httplib2.Http()
     result = json.loads(h.request(url, 'GET')[1])
     if result.get('error') is not None:
@@ -63,17 +67,20 @@ def gconnect():
         return response
     gplus_id = credentials.id_token['sub']
     if result['user_id'] != gplus_id:
-        response = make_response(json.dumps('Token does not match User ID'), 401)
+        response = make_response(
+            json.dumps('Token does not match User ID'), 401)
         response.header['Content-Type'] = 'application/json'
         return response
     if result['issued_to'] != CLIENT_ID:
-        response = make_response(json.dumps('Tokens Client ID does not match App'), 401)
+        response = make_response(
+            json.dumps('Tokens Client ID does not match App'), 401)
         response.headers['Content-Type'] = 'application/json'
         return response
     stored_access_token = login_session.get('access_token')
     stored_gplus_id = login_session.get('gplus_id')
     if stored_access_token is not None and gplus_id == stored_gplus_id:
-        response = make_response(json.dumps('Current user already connected'), 200)
+        response = make_response(
+            json.dumps('Current user already connected'), 200)
         response.headers['Content-Type'] = 'application/json'
 
     login_session['access_token'] = credentials.access_token
@@ -99,11 +106,11 @@ def gconnect():
     output += '<h1>Welcome, '
     output += login_session['username']
     output += '</h1>'
-    flash("You are now Logged In as %s" %login_session['username'])
+    flash("You are now Logged In as %s" % login_session['username'])
     return output
 
 
-@app.route('/fbconnect', methods=['GET','POST'])
+@app.route('/fbconnect', methods=['GET', 'POST'])
 def fbconnect():
     if request.args.get('state') != login_session['state']:
         response = make_response(json.dumps('Invalid state parameter.'), 401)
@@ -111,14 +118,13 @@ def fbconnect():
         return response
     access_token = request.data
     print access_token
-
-
     app_id = json.loads(open('fb_client_secrets.json', 'r').read())[
         'web']['app_id']
     app_secret = json.loads(
         open('fb_client_secrets.json', 'r').read())['web']['app_secret']
-    url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (
-        app_id, app_secret, access_token)
+    url = 'https://graph.facebook.com/oauth/access_token?'
+    url += 'grant_type=fb_exchange_token&client_id=%s&' % app_id
+    url += 'client_secret=%s&fb_exchange_token=%s' % (app_secret, access_token)
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
 
@@ -271,6 +277,25 @@ def newCategory():
         return render_template('newCategory.html', navitems=navitems)
 
 
+@app.route('/category/<string:url_name>/edit/', methods=['GET', 'POST'])
+def editCategory(url_name):
+    if 'username' not in login_session:
+        return redirect('/login')
+    categoryToEdit = session.query(Category).filter_by(url_name=url_name).one()
+    if categoryToEdit.user_id != login_session['user_id']:
+        flash('You do not have access to edit %s' % categoryToEdit.name)
+        return redirect(url_for('showCategoryProducts', url_name=categoryToEdit.url_name))
+    if request.method == 'POST':
+        if request.form['name']:
+            categoryToEdit.name = request.form['name']    
+        if request.form['urlname']:
+            categoryToEdit.url_name = request.form['urlname']
+        flash('%s was edited Successfully' % categoryToEdit.name)
+        return redirect(url_for('showCategoryProducts', url_name=categoryToEdit.url_name))
+    else:
+        return render_template('editCategory.html', navitems=navitems, category=categoryToEdit)
+
+
 @app.route('/category/<string:url_name>/delete/', methods=['GET', 'POST'])
 def delCategory(url_name):
     if 'username' not in login_session:
@@ -297,6 +322,69 @@ def showCategoryProducts(url_name):
         return render_template('public-categoryproducts.html', navitems=navitems, category=category, products=products)
     else:
         return render_template('categoryproducts.html', navitems=navitems, category=category, products=products)
+
+
+@app.route('/category/<string:url_name>/products/add/', methods=['GET', 'POST'])
+def addProduct(url_name):
+    category = session.query(Category).filter_by(url_name=url_name).one()
+    if 'username' not in login_session:
+        return redirect('/login')
+    if request.method == 'POST':
+        newProduct = Product(
+            name=request.form['name'], short_desc=request.form['shortdesc'], price=request.form['price'],
+            category=category, user_id=login_session['user_id'])
+        session.add(newProduct)
+        flash('%s was added Successfully to the %s category' % (newProduct.name, category.name))
+        session.commit()
+        return redirect(url_for('showCategoryProducts', url_name=category.url_name))
+    else:
+        return render_template('newProduct.html', navitems=navitems, category=category)
+
+
+@app.route('/category/<string:url_name>/products/<int:product_id>/edit/', methods=['GET', 'POST'])
+def editProduct(url_name, product_id):
+    category = session.query(Category).filter_by(url_name=url_name).one()
+    productToEdit = session.query(Product).filter_by(id=product_id).one()
+    if 'username' not in login_session:
+        return redirect('/login')
+    if productToEdit.user_id != login_session['user_id']:
+        flash('You do not have access to Edit %s' % productToEdit.name)
+        return redirect(url_for('showCategoryProducts', url_name=url_name))
+    if request.method == 'POST':
+        if request.form['name']:
+            productToEdit.name = request.form['name']
+        if request.form['shortdesc']:
+            productToEdit.short_desc = request.form['shortdesc']
+        if request.form['price']:
+            productToEdit.price = request.form['price']
+        session.add(productToEdit)
+        print productToEdit
+        flash('%s was edited Successfully' % productToEdit.name)
+        session.commit()
+        return redirect(url_for('showCategoryProducts', url_name=category.url_name))
+    else:
+        return render_template('editProduct.html', navitems=navitems, category=category, product=productToEdit)
+
+
+
+@app.route('/category/<string:url_name>/products/<int:product_id>/delete/', methods=['GET', 'POST'])
+def delProduct(url_name, product_id):
+    category = session.query(Category).filter_by(url_name=url_name).one()
+    productToDelete = session.query(Product).filter_by(id=product_id).one()
+    if 'username' not in login_session:
+        return redirect('/login')
+    if productToDelete.user_id != login_session['user_id']:
+        flash('You do not have access to delete %s' % productToDelete.name)
+        return redirect(url_for('showCategoryProducts', url_name=url_name))
+    if request.method == 'POST':
+        session.delete(productToDelete)
+        flash('You have successfully deleted %s' % productToDelete.name)
+        session.commit()
+        return redirect(url_for('showCategoryProducts', url_name=url_name))
+    else:
+        return render_template('deleteProduct.html', navitems=navitems, category=category, product=productToDelete)
+
+
 
 
 

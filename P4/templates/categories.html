@@ -7,7 +7,7 @@
 			<h2 class="category-page-title">All Products</h2>
 			<div class="category-page-header-buttons">
 				<a href="{{ url_for('newCategory')}}">
-					<button class="btn btn-add-product">Add a Category</button>
+					<button class="btn btn-add">Add a Category</button>
 				</a>
 			</div>
 		</div>
@@ -30,9 +30,9 @@
 					<img class="user-avatar" src="{{ p.user.avatar }}">
 					<span class="user-name">{{ p.user.name }}</span>
 					<div class="product-item-footer-buttons">
-						<a class="edit-product-link" href="#">Edit</a>
+						<a class="edit-product-link" href="{{ url_for('editProduct', url_name=p.category_url, product_id=p.id) }}">Edit</a>
 						<span class="spacer">/</span>
-						<a class="delete-product-link" href="#">Delete</a>
+						<a class="delete-product-link" href="{{ url_for('delProduct', url_name=p.category_url, product_id=p.id) }}">Delete</a>
 					</div>
 				</div>
 			</div>

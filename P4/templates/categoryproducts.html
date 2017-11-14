@@ -6,14 +6,14 @@
 		<div class="category-page-header">
 			<h2 class="category-page-title">{{ category.name }}</h2>
 			<div class="category-page-header-buttons">
-				<a href="#">
+				<a href="{{ url_for('editCategory', url_name=category.url_name) }}">
 					<button class="btn btn-edit-cat">Edit Category</button>
 				</a>
 				<a href="{{ url_for('delCategory', url_name=category.url_name) }}">
 					<button class="btn btn-delete-cat">Delete Category</button>
 				</a>
-				<a href="#">
-					<button class="btn btn-add-product">Add a Product</button>
+				<a href="{{ url_for('addProduct', url_name=category.url_name) }}">
+					<button class="btn btn-add">Add a Product</button>
 				</a>
 			</div>
 		</div>
@@ -36,9 +36,9 @@
 					<img class="user-avatar" src="{{ p.user.avatar }}">
 					<span class="user-name">{{ p.user.name }}</span>
 					<div class="product-item-footer-buttons">
-						<a class="edit-product-link" href="#">Edit</a>
+						<a class="edit-product-link" href="{{ url_for('editProduct', url_name=category.url_name, product_id=p.id) }}">Edit</a>
 						<span class="spacer">/</span>
-						<a class="delete-product-link" href="#">Delete</a>
+						<a class="delete-product-link" href="{{ url_for('delProduct', url_name=category.url_name, product_id=p.id) }}">Delete</a>
 					</div>
 				</div>
 			</div>

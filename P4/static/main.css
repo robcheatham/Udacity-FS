@@ -66,7 +66,7 @@ a {
 .btn {
 	background: none;
 	border: 3px solid #fff;
-	margin-right: 1rem;
+	margin-right: 0.5rem;
 	cursor: pointer;
 	padding: 16px 64px;
 	font-family: 'Roboto', sans-serif;
@@ -154,11 +154,17 @@ a {
 
 .category-page-title {
 	font-size: 4rem;
+	text-transform: capitalize;
 }
 
-.btn-edit-cat, .btn-delete-cat, .btn-add-product {
+.btn-edit-cat, .btn-delete-cat, .btn-add, .btn-back {
 	max-width: 240px;
 	padding: 1rem;
+}
+
+.btn-back {
+	border: 3px solid #d7d7d7;
+	color: #d7d7d7;
 }
 
 .btn-edit-cat {
@@ -171,12 +177,12 @@ a {
 	color: #da413d;
 }
 
-.btn-add-product {
+.btn-add {
 	border: 3px solid #005960;
 	color: #005960;
 }
 
-.btn-edit-cat:hover, .btn-delete-cat:hover, .btn-add-product:hover {
+.btn-edit-cat:hover, .btn-delete-cat:hover, .btn-add:hover, .btn-back:hover {
 	color: #fff;
 }
 
@@ -188,8 +194,12 @@ a {
 	background: #da413d;
 }
 
-.btn-add-product:hover {
+.btn-add:hover {
 	background: #005960;
+}
+
+.btn-back:hover {
+	background: #d7d7d7;
 }
 
 .login-wrapper {
@@ -214,6 +224,44 @@ a {
 	display: flex;
 	flex-direction: row;
 	flex-wrap: wrap;
+}
+
+.form-wrapper {
+	padding: 1rem 2rem;
+}
+
+.form-row {
+	margin-bottom: 1rem;
+	width: 400px;
+}
+
+label {
+	display: block;
+	font-size: 0.8rem;
+	font-weight: 500;
+	color: #232323;
+	margin-bottom: 0.3rem;
+	text-transform: uppercase; 
+}
+
+.form-group {
+	width: 400px;
+}
+
+.form-control {
+	color: #232323;
+	width: 400px;
+	display: block;
+	font-weight: 300;
+	padding: 0.5rem 0.75rem;
+	padding-left: 2px;
+	border: 0;
+	border-bottom: 1px solid #f1f1f1;
+	margin-bottom: 1rem;
+}
+
+.form-buttons {
+	float: right;
 }
 
 .product-item {

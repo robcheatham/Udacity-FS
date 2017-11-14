@@ -7,10 +7,10 @@
 			<h2 class="category-page-title">{{ category.name }}</h2>
 			<div class="category-page-header-buttons">
 				<a href="{{ url_for('editCategory', url_name=category.url_name) }}">
-					<button class="btn btn-edit-cat">Edit Category</button>
+					<button class="btn btn-edit">Edit Category</button>
 				</a>
 				<a href="{{ url_for('delCategory', url_name=category.url_name) }}">
-					<button class="btn btn-delete-cat">Delete Category</button>
+					<button class="btn btn-delete">Delete Category</button>
 				</a>
 				<a href="{{ url_for('addProduct', url_name=category.url_name) }}">
 					<button class="btn btn-add">Add a Product</button>

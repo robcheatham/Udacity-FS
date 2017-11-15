@@ -113,7 +113,8 @@ def gconnect():
 @app.route('/fbconnect', methods=['GET', 'POST'])
 def fbconnect():
     if request.args.get('state') != login_session['state']:
-        response = make_response(json.dumps('Invalid state parameter.'), 401)
+        response = make_response(
+            json.dumps('Invalid state parameter.'), 401)
         response.headers['Content-Type'] = 'application/json'
         return response
     access_token = request.data
@@ -127,20 +128,19 @@ def fbconnect():
     url += 'client_secret=%s&fb_exchange_token=%s' % (app_secret, access_token)
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
-
-
     # Use token to get user info from API
     userinfo_url = "https://graph.facebook.com/v2.8/me"
     '''
-        Due to the formatting for the result from the server token exchange we have to
-        split the token first on commas and select the first index which gives us the key : value
-        for the server access token then we split it on colons to pull out the actual token value
-        and replace the remaining quotes with nothing so that it can be used directly in the graph
-        api calls
+        Due to the formatting for the result from the server token exchange
+        we have to split the token first on commas and select the first index
+        which gives us the key : value for the server access token then we
+        split it on colons to pull out the actual token value and replace the
+        remaining quotes with nothing so that it can be used directly in the
+        graph api calls
     '''
     token = result.split(',')[0].split(':')[1].replace('"', '')
-
-    url = 'https://graph.facebook.com/v2.8/me?access_token=%s&fields=name,id,email' % token
+    url = 'https://graph.facebook.com/v2.8/me?access_token='
+    url += '%s&fields=name,id,email' % token
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
     # print "url sent for API access:%s"% url
@@ -150,12 +150,12 @@ def fbconnect():
     login_session['username'] = data["name"]
     login_session['email'] = data["email"]
     login_session['facebook_id'] = data["id"]
-
     # The token must be stored in the login_session in order to properly logout
     login_session['access_token'] = token
 
     # Get user picture
-    url = 'https://graph.facebook.com/v2.8/me/picture?access_token=%s&redirect=0&height=200&width=200' % token
+    url = 'https://graph.facebook.com/v2.8/me/picture?access_token='
+    url += '%s&redirect=0&height=200&width=200' % token
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
     data = json.loads(result)
@@ -175,11 +175,11 @@ def fbconnect():
     output += '!</h1>'
     output += '<img src="'
     output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+    output += '"style="width:300px;height:300px;border-radius:150px;'
+    output += '-webkit-border-radius:150px;-moz-border-radius:150px;"> '
 
     flash("Now logged in as %s" % login_session['username'])
     return output
-
 
 
 # User Helper Functions
@@ -204,6 +204,186 @@ def getUserID(email):
     except:
         return None
 
+
+# API JSON Endpoints
+# API JSON for All Categories
+@app.route('/api/v1/category/JSON/')
+def catJSON():
+    categories = session.query(Category).all()
+    return jsonify(categories=[c.serialize for c in categories])
+
+
+# API JSON for All Products in a specific Category
+@app.route('/api/v1/category/<string:url_name>/products/JSON/')
+def catProductsJSON(url_name):
+    products = session.query(Product).filter_by(category_url=url_name).all()
+    return jsonify(products=[p.serialize for p in products])
+
+
+# API JSON for a particular item
+@app.route(
+    '/api/v1/category/<string:url_name>/products/<int:product_id>/JSON/')
+def oneProductJSON(url_name, product_id):
+    product = session.query(Product).filter_by(id=product_id).one()
+    return jsonify(product=product.serialize)
+
+
+navitems = session.query(Category).order_by(asc(Category.name))
+
+
+# Show all the categories
+@app.route('/')
+@app.route('/category/')
+def showCategories():
+    products = session.query(Product).all()
+    if 'username' not in login_session:
+        return render_template('public-categories.html', navitems=navitems,
+                               products=products)
+    else:
+        return render_template('categories.html', navitems=navitems,
+                               products=products)
+
+
+@app.route('/category/new/', methods=['GET', 'POST'])
+def newCategory():
+    if 'username' not in login_session:
+        return redirect('/login')
+    if request.method == 'POST':
+        newCategory = Category(
+            name=request.form['name'], url_name=request.form['urlname'],
+            user_id=login_session['user_id'])
+        session.add(newCategory)
+        flash('New Category %s was created Successfully' % newCategory.name)
+        session.commit()
+        return redirect(url_for('showCategories'))
+    else:
+        return render_template('newCategory.html', navitems=navitems)
+
+
+@app.route('/category/<string:url_name>/edit/', methods=['GET', 'POST'])
+def editCategory(url_name):
+    if 'username' not in login_session:
+        return redirect('/login')
+    categoryToEdit = session.query(Category).filter_by(url_name=url_name).one()
+    if categoryToEdit.user_id != login_session['user_id']:
+        flash('You do not have access to edit %s' % categoryToEdit.name)
+        return redirect(url_for('showCategoryProducts',
+                                url_name=categoryToEdit.url_name))
+    if request.method == 'POST':
+        if request.form['name']:
+            categoryToEdit.name = request.form['name']
+        if request.form['urlname']:
+            categoryToEdit.url_name = request.form['urlname']
+        flash('%s was edited Successfully' % categoryToEdit.name)
+        return redirect(url_for('showCategoryProducts',
+                                url_name=categoryToEdit.url_name))
+    else:
+        return render_template('editCategory.html', navitems=navitems,
+                               category=categoryToEdit)
+
+
+@app.route('/category/<string:url_name>/delete/', methods=['GET', 'POST'])
+def delCategory(url_name):
+    if 'username' not in login_session:
+        return redirect('/login')
+    categoryToDelete = session.query(
+        Category).filter_by(url_name=url_name).one()
+    if categoryToDelete.user_id != login_session['user_id']:
+        flash('You do not have access to delete %s' % categoryToDelete.name)
+        return redirect(url_for('showCategoryProducts',
+                                url_name=categoryToDelete.url_name))
+    if request.method == 'POST':
+        session.delete(categoryToDelete)
+        flash('You have successfully deleted %s' % categoryToDelete.name)
+        session.commit()
+        return redirect(url_for('showCategories'))
+    else:
+        return render_template('deleteCategory.html', navitems=navitems,
+                               category=categoryToDelete)
+
+
+@app.route('/category/<string:url_name>/')
+@app.route('/category/<string:url_name>/products/')
+def showCategoryProducts(url_name):
+    category = session.query(Category).filter_by(url_name=url_name).one()
+    products = session.query(Product).filter_by(category_url=url_name).all()
+    if 'username' not in login_session:
+        return render_template('public-categoryproducts.html',
+                               navitems=navitems, category=category,
+                               products=products)
+    else:
+        return render_template('categoryproducts.html', navitems=navitems,
+                               category=category, products=products)
+
+
+@app.route('/category/<string:url_name>/products/add/',
+           methods=['GET', 'POST'])
+def addProduct(url_name):
+    category = session.query(Category).filter_by(url_name=url_name).one()
+    if 'username' not in login_session:
+        return redirect('/login')
+    if request.method == 'POST':
+        newProduct = Product(
+            name=request.form['name'], short_desc=request.form['shortdesc'],
+            price=request.form['price'],
+            category=category, user_id=login_session['user_id'])
+        session.add(newProduct)
+        flash('%s was added Successfully to the %s category'
+              % (newProduct.name, category.name))
+        session.commit()
+        return redirect(url_for('showCategoryProducts',
+                                url_name=category.url_name))
+    else:
+        return render_template('newProduct.html', navitems=navitems,
+                               category=category)
+
+
+@app.route('/category/<string:url_name>/products/<int:product_id>/edit/',
+           methods=['GET', 'POST'])
+def editProduct(url_name, product_id):
+    category = session.query(Category).filter_by(url_name=url_name).one()
+    productToEdit = session.query(Product).filter_by(id=product_id).one()
+    if 'username' not in login_session:
+        return redirect('/login')
+    if productToEdit.user_id != login_session['user_id']:
+        flash('You do not have access to Edit %s' % productToEdit.name)
+        return redirect(url_for('showCategoryProducts', url_name=url_name))
+    if request.method == 'POST':
+        if request.form['name']:
+            productToEdit.name = request.form['name']
+        if request.form['shortdesc']:
+            productToEdit.short_desc = request.form['shortdesc']
+        if request.form['price']:
+            productToEdit.price = request.form['price']
+        session.add(productToEdit)
+        print productToEdit
+        flash('%s was edited Successfully' % productToEdit.name)
+        session.commit()
+        return redirect(url_for('showCategoryProducts',
+                                url_name=category.url_name))
+    else:
+        return render_template('editProduct.html', navitems=navitems,
+                               category=category, product=productToEdit)
+
+
+@app.route('/category/<string:url_name>/products/<int:product_id>/delete/',
+           methods=['GET', 'POST'])
+def delProduct(url_name, product_id):
+    category = session.query(Category).filter_by(url_name=url_name).one()
+    productToDelete = session.query(Product).filter_by(id=product_id).one()
+    if 'username' not in login_session:
+        return redirect('/login')
+    if productToDelete.user_id != login_session['user_id']:
+        flash('You do not have access to delete %s' % productToDelete.name)
+        return redirect(url_for('showCategoryProducts', url_name=url_name))
+    if request.method == 'POST':
+        session.delete(productToDelete)
+        flash('You have successfully deleted %s' % productToDelete.name)
+        session.commit()
+        return redirect(url_for('showCategoryProducts', url_name=url_name))
+    else:
+        return render_template('deleteProduct.html', navitems=navitems,
+                               category=category, product=productToDelete)
 
 
 @app.route('/logout')
@@ -233,7 +413,8 @@ def logout():
         return showLogin()
     elif login_session.get('provider') == 'facebook':
         facebook_id = login_session.get('facebook_id')
-        url = 'https://graph.facebook.com/%s/permissions?access_token=%s' % (facebook_id, access_token)
+        url = 'https://graph.facebook.com/%s/permissions?'
+        url += 'access_token=%s' % (facebook_id, access_token)
         h = httplib2.Http()
         result = h.request(url, 'DELETE')[1]
         del login_session['username']
@@ -243,149 +424,12 @@ def logout():
         del login_session['user_id']
         del login_session['facebook_id']
         flash('You have been successfully Logged Out')
-        return showLogin()       
+        return showLogin()
     else:
-        response = make_response(json.dumps('Failed to revoke the token for User'), 400)
+        response = make_response(
+            json.dumps('Failed to revoke the token for User'), 400)
         response.headers['Content-Type'] = 'application/json'
-        return response    
-
-navitems = session.query(Category).order_by(asc(Category.name))
-
-# Show all the categories
-@app.route('/')
-@app.route('/category/')
-def showCategories():
-    products = session.query(Product).all()
-    if 'username' not in login_session:
-        return render_template('public-categories.html', navitems=navitems, products=products)
-    else:
-        return render_template('categories.html', navitems=navitems, products=products)
-
-
-@app.route('/category/new/', methods=['GET', 'POST'])
-def newCategory():
-    if 'username' not in login_session:
-        return redirect('/login')
-    if request.method == 'POST':
-        newCategory = Category(
-            name=request.form['name'], url_name=request.form['urlname'], user_id=login_session['user_id'])
-        session.add(newCategory)
-        flash('New Category %s was created Successfully' % newCategory.name)
-        session.commit()
-        return redirect(url_for('showCategories'))
-    else:
-        return render_template('newCategory.html', navitems=navitems)
-
-
-@app.route('/category/<string:url_name>/edit/', methods=['GET', 'POST'])
-def editCategory(url_name):
-    if 'username' not in login_session:
-        return redirect('/login')
-    categoryToEdit = session.query(Category).filter_by(url_name=url_name).one()
-    if categoryToEdit.user_id != login_session['user_id']:
-        flash('You do not have access to edit %s' % categoryToEdit.name)
-        return redirect(url_for('showCategoryProducts', url_name=categoryToEdit.url_name))
-    if request.method == 'POST':
-        if request.form['name']:
-            categoryToEdit.name = request.form['name']    
-        if request.form['urlname']:
-            categoryToEdit.url_name = request.form['urlname']
-        flash('%s was edited Successfully' % categoryToEdit.name)
-        return redirect(url_for('showCategoryProducts', url_name=categoryToEdit.url_name))
-    else:
-        return render_template('editCategory.html', navitems=navitems, category=categoryToEdit)
-
-
-@app.route('/category/<string:url_name>/delete/', methods=['GET', 'POST'])
-def delCategory(url_name):
-    if 'username' not in login_session:
-        return redirect('/login')
-    categoryToDelete = session.query(Category).filter_by(url_name=url_name).one()
-    if categoryToDelete.user_id != login_session['user_id']:
-        flash('You do not have access to delete %s' % categoryToDelete.name)
-        return redirect(url_for('showCategoryProducts', url_name=categoryToDelete.url_name))
-    if request.method == 'POST':
-        session.delete(categoryToDelete)
-        flash('You have successfully deleted %s' % categoryToDelete.name)
-        session.commit()
-        return redirect(url_for('showCategories'))
-    else: 
-        return render_template('deleteCategory.html', navitems=navitems, category=categoryToDelete)
-
-
-@app.route('/category/<string:url_name>/')
-@app.route('/category/<string:url_name>/products/')
-def showCategoryProducts(url_name):
-    category = session.query(Category).filter_by(url_name=url_name).one()
-    products = session.query(Product).filter_by(category_url=url_name).all()
-    if 'username' not in login_session:
-        return render_template('public-categoryproducts.html', navitems=navitems, category=category, products=products)
-    else:
-        return render_template('categoryproducts.html', navitems=navitems, category=category, products=products)
-
-
-@app.route('/category/<string:url_name>/products/add/', methods=['GET', 'POST'])
-def addProduct(url_name):
-    category = session.query(Category).filter_by(url_name=url_name).one()
-    if 'username' not in login_session:
-        return redirect('/login')
-    if request.method == 'POST':
-        newProduct = Product(
-            name=request.form['name'], short_desc=request.form['shortdesc'], price=request.form['price'],
-            category=category, user_id=login_session['user_id'])
-        session.add(newProduct)
-        flash('%s was added Successfully to the %s category' % (newProduct.name, category.name))
-        session.commit()
-        return redirect(url_for('showCategoryProducts', url_name=category.url_name))
-    else:
-        return render_template('newProduct.html', navitems=navitems, category=category)
-
-
-@app.route('/category/<string:url_name>/products/<int:product_id>/edit/', methods=['GET', 'POST'])
-def editProduct(url_name, product_id):
-    category = session.query(Category).filter_by(url_name=url_name).one()
-    productToEdit = session.query(Product).filter_by(id=product_id).one()
-    if 'username' not in login_session:
-        return redirect('/login')
-    if productToEdit.user_id != login_session['user_id']:
-        flash('You do not have access to Edit %s' % productToEdit.name)
-        return redirect(url_for('showCategoryProducts', url_name=url_name))
-    if request.method == 'POST':
-        if request.form['name']:
-            productToEdit.name = request.form['name']
-        if request.form['shortdesc']:
-            productToEdit.short_desc = request.form['shortdesc']
-        if request.form['price']:
-            productToEdit.price = request.form['price']
-        session.add(productToEdit)
-        print productToEdit
-        flash('%s was edited Successfully' % productToEdit.name)
-        session.commit()
-        return redirect(url_for('showCategoryProducts', url_name=category.url_name))
-    else:
-        return render_template('editProduct.html', navitems=navitems, category=category, product=productToEdit)
-
-
-
-@app.route('/category/<string:url_name>/products/<int:product_id>/delete/', methods=['GET', 'POST'])
-def delProduct(url_name, product_id):
-    category = session.query(Category).filter_by(url_name=url_name).one()
-    productToDelete = session.query(Product).filter_by(id=product_id).one()
-    if 'username' not in login_session:
-        return redirect('/login')
-    if productToDelete.user_id != login_session['user_id']:
-        flash('You do not have access to delete %s' % productToDelete.name)
-        return redirect(url_for('showCategoryProducts', url_name=url_name))
-    if request.method == 'POST':
-        session.delete(productToDelete)
-        flash('You have successfully deleted %s' % productToDelete.name)
-        session.commit()
-        return redirect(url_for('showCategoryProducts', url_name=url_name))
-    else:
-        return render_template('deleteProduct.html', navitems=navitems, category=category, product=productToDelete)
-
-
-
+        return response
 
 
 if __name__ == '__main__':
